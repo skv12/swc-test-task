@@ -10,8 +10,8 @@ class Attachment implements ArrayAccess
     public function __construct(
         public ?UploadedFile $file = null,
         public ?string $url = null,
-        public ?int $id = null,
-        public ?int $order = null,
+        public ?string $uuid = null,
+        public int $order = 1,
     ) {
     }
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends FormRequest
 {
@@ -22,14 +24,15 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'required', 'string'],
-            'description' => ['sometimes', 'required', 'string'],
-            'employee_id' => ['sometimes', 'required', 'integer', 'exists:users,id'],
-            'estimate_until' => ['sometimes', 'nullable', 'date'],
-            'attachments' => ['sometimes', 'array'],
+            'title' => ['required', 'string'],
+            'description' => ['required', 'string'],
+            'employee_id' => ['required', 'integer', 'exists:users,id'],
+            'status' => ['required', Rule::enum(TaskStatus::class)],
+            'estimate_until' => ['nullable', 'date'],
+            'attachments' => ['nullable', 'array'],
             'attachments.*.file' => ['sometimes', 'file'],
             'attachments.*.url' => ['sometimes', 'url'],
-            'attachments.*.id' => ['sometimes', 'integer', 'exists:media,id'],
+            'attachments.*.uuid' => ['sometimes', 'integer', 'exists:media,id'],
             'attachments.*.order' => ['sometimes', 'string'],
         ];
     }

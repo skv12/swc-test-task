@@ -68,44 +68,45 @@ class TaskService
         $task = $this->findById($id);
 
         DB::transaction(function () use (&$task, $dto) {
-            $task->update(array_filter([
+            $task->update([
                 'title' => $dto->title,
                 'description' => $dto->description,
                 'status' => $dto->status,
                 'employee_id' => $dto->employeeId,
-            ]));
+                'estimate_until' => $dto->estimateUntil,
+            ]);
 
-            if ($dto->attachments === null) {
+            if ($dto->attachments === null || $dto->attachments->isEmpty()) {
                 $task->clearMediaCollection('attachments');
             } else {
                 $existingMedia = $task->getMedia('attachments');
 
-                $keepIds = $dto->attachments->filter(fn(Attachment $attachment) => $attachment->id !== null);
+                /**
+                 * @var \Illuminate\Support\Collection<int, Media> $keepIds
+                 */
+                $newMedia = $dto->attachments->sortBy('order')->map(function (Attachment $attachment) use ($task, $existingMedia) {
+                    if ($attachment->uuid) {
+                        return $existingMedia->firstWhere('uuid', $attachment->uuid);
+                    }
+                    return $this->addAttachment($task, $attachment);
+                })->filter();
 
-                $keepMedia = $existingMedia->filter(
-                    fn(Media $media) => $keepIds->contains(fn(Attachment $attachment) => $attachment->id === $media->id)
-                )->each(fn(Media $media) => $media->update([
-                    'order_column' => $dto->attachments->firstWhere(
-                            fn(Attachment $attachment) => $attachment->id === $media->id
-                        )->order ?? null,
-                ]));
-
-                $newMedia = $dto->attachments->filter(fn(Attachment $attachment) => $attachment->id === null)->map(
-                    fn(Attachment $attachment) => $this->addAttachment($task, $attachment)
-                );
-
-                $newMedia->each(fn(?Media $media) => $media !== null ? $keepMedia->push($media) : null);
-
-                $existingMedia->whereNotIn('id', $keepMedia->pluck('id'))->each(fn(Media $media) => $media->delete());
+                $task->updateMedia($newMedia->toArray(), 'attachments');
             }
         });
 
-        $task->loadMedia('attachments');
+        $task->load('employee');
+        $task->getMediaCollection('attachments');
 
         return $task;
     }
 
     public function findById(int $id): Task
+    {
+        return Task::query()->findOrFail($id);
+    }
+
+    public function findByIdWithRelations(int $id): Task
     {
         $task = Task::query()->with('employee')->findOrFail($id);
         $task->getMediaCollection('attachments');

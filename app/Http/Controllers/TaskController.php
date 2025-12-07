@@ -16,7 +16,6 @@ use App\ValueObjects\Attachment;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Optional;
 
 class TaskController extends Controller
 {
@@ -67,7 +66,7 @@ class TaskController extends Controller
                 title: $validated['title'],
                 description: $validated['description'],
                 employeeId: $validated['employee_id'],
-                status: TaskStatus::tryFrom($validated['status']),
+                status: isset($validated['status']) ? TaskStatus::tryFrom($validated['status']) : TaskStatus::PLANNED,
                 estimateUntil: $validated['estimate_until'] ?? null,
                 attachments: $attachments->isNotEmpty() ? $attachments : null,
             )
@@ -78,7 +77,7 @@ class TaskController extends Controller
 
     public function show(int $id): TaskResource
     {
-        $task = $this->taskService->findById($id);
+        $task = $this->taskService->findByIdWithRelations($id);
 
         return TaskResource::make($task);
     }
@@ -87,15 +86,22 @@ class TaskController extends Controller
     {
         $validated = $request->validated();
 
-        $attachments = null;
-        if (isset($validated['attachments'])) {
+        $attachments = $validated['attachments'];
+        if ($validated['attachments'] !== null) {
             $attachments = new Collection();
+            /** @var array{
+             *     file: ?string,
+             *     url: ?string,
+             *     uuid: ?string,
+             *     order: ?int
+             *  } $value
+             */
             foreach ($validated['attachments'] as $value) {
                 $attachment = new Attachment(
                     file: $value['file'] ?? null,
                     url: $value['url'] ?? null,
-                    id: $value['id'] ?? null,
-                    order: $value['order'] ?? null,
+                    uuid: $value['uuid'] ?? null,
+                    order: $value['order'] ?? 1,
                 );
 
                 $attachments->push($attachment);
@@ -103,11 +109,11 @@ class TaskController extends Controller
         }
 
         $dto = new UpdateTaskDto(
-            title: $validated['title'] ?? null,
-            description: $validated['description'] ?? null,
-            employeeId: $validated['employee_id'] ?? null,
-            status: TaskStatus::tryFrom($validated['status']) ?? new Optional(null),
-            estimateUntil: $validated['estimate_until'] ?? new Optional(null),
+            title: $validated['title'],
+            description: $validated['description'],
+            status: TaskStatus::tryFrom($validated['status']),
+            employeeId: $validated['employee_id'],
+            estimateUntil: $validated['estimate_until'],
             attachments: $attachments,
         );
 

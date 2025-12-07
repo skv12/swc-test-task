@@ -16,15 +16,16 @@ readonly class UpdateTaskDto
     public ?Collection $attachments;
 
     public function __construct(
-        public ?string $title = null,
-        public ?string $description = null,
-        public ?int $employeeId = null,
-        public Optional|null|TaskStatus $status,
-        public Optional|null|Carbon $estimateUntil,
-        ?Collection $attachments,
+        public string $title,
+        public string $description,
+        public TaskStatus $status,
+        public int $employeeId,
+        public ?Carbon $estimateUntil = null,
+        ?Collection $attachments = null,
     ) {
         if ($attachments instanceof Collection) {
-            $this->attachments = $attachments->filter(fn ($attachment) => $attachment instanceof Attachment);
+            $attachments = $attachments->filter(fn ($attachment) => $attachment instanceof Attachment);
         }
+        $this->attachments = $attachments;
     }
 }
