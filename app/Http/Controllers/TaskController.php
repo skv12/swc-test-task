@@ -54,7 +54,7 @@ class TaskController extends Controller
                 $attachment = new Attachment(
                     file: $value['file'] ?? null,
                     url: $value['url'] ?? null,
-                    order: $value['order'] ?? null,
+                    order: $value['order'] ?? 1,
                 );
 
                 $attachments->push($attachment);

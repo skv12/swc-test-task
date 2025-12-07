@@ -32,8 +32,8 @@ class UpdateTaskRequest extends FormRequest
             'attachments' => ['nullable', 'array'],
             'attachments.*.file' => ['sometimes', 'file'],
             'attachments.*.url' => ['sometimes', 'url'],
-            'attachments.*.uuid' => ['sometimes', 'integer', 'exists:media,id'],
-            'attachments.*.order' => ['sometimes', 'string'],
+            'attachments.*.uuid' => ['sometimes', 'uuid', 'exists:media,uuid'],
+            'attachments.*.order' => ['sometimes', 'int'],
         ];
     }
 }
