@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -320,16 +321,22 @@ class TaskTest extends TestCase
                 ->where('status', TaskStatus::IN_PROGRESS->value)
                 ->where('estimate_until', null)
                 ->count('attachments', 3)
-                ->where('attachments', fn (Collection $attachments) => $attachments->values()
+                ->where('attachments', fn (Collection $attachments) => $attachments
+                        ->map(function (string $attachment, string $key) {
+                            return [
+                                'uuid' => $key,
+                                'url' => $attachment,
+                            ];
+                        })->values()
                     ->filter(function (array $attachment, int $key) use ($keepMedia) {
                         if ($key === 0) {
                             return $attachment['uuid'] === $keepMedia->uuid;
                         }
                         if ($key === 1) {
-                            return $attachment['name'] === '200x200';
+                            return Str::isUrl($attachment['url']) && Str::contains($attachment['url'], '200x200');
                         }
                         if ($key === 2) {
-                            return $attachment['name'] === 'updated';
+                            return Str::isUrl($attachment['url']) && Str::contains($attachment['url'], 'updated');
                         }
                         return false;
                     })->count() === 3)
