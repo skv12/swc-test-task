@@ -24,6 +24,15 @@ class TaskController extends Controller
     ) {
     }
 
+    /**
+     * Список задач
+     *
+     * Получает все неудаленные задачи с соответствующими фильтрами.
+     *
+     * Запрос с пагинацией
+     * @param \App\Http\Requests\FilterTaskRequest $request
+     * @return \App\Http\Resources\TaskCollection
+     */
     public function index(FilterTaskRequest $request): TaskCollection
     {
         $validated = $request->validated();
@@ -40,6 +49,15 @@ class TaskController extends Controller
         return new TaskCollection($tasks);
     }
 
+    /**
+     * Создание задачи
+     *
+     * Статус по умолчанию будет указано `planned`.
+     *
+     * Вложения `attachments` могут загружаться как и файл и ссылка на файл
+     * @param \App\Http\Requests\StoreTaskRequest $request
+     * @return \App\Http\Resources\TaskResource
+     */
     public function store(StoreTaskRequest $request): TaskResource
     {
         $validated = $request->validated();
@@ -75,6 +93,13 @@ class TaskController extends Controller
         return TaskResource::make($task);
     }
 
+    /**
+     * Получить задачу по ID
+     *
+     * Также подгружаются вложения
+     * @param int $id
+     * @return \App\Http\Resources\TaskResource
+     */
     public function show(int $id): TaskResource
     {
         $task = $this->taskService->findByIdWithRelations($id);
@@ -82,6 +107,20 @@ class TaskController extends Controller
         return TaskResource::make($task);
     }
 
+    /**
+     * Обновить полностью задачу
+     *
+     * По REST API PUT метод должен обновить полностью или создать новый ресурс.
+     *
+     * При пустом `attachments` удалит все вложения.
+     *
+     * При указанном `attachments.*.uuid` оставляет вложение, `file` или `url` добавляют файл.
+     *
+     * Удаляет те вложения, которые не были указаны, и добавляет новые.
+     * @param \App\Http\Requests\UpdateTaskRequest $request
+     * @param int $id
+     * @return \App\Http\Resources\TaskResource
+     */
     public function update(UpdateTaskRequest $request, int $id): TaskResource
     {
         $validated = $request->validated();
@@ -122,9 +161,16 @@ class TaskController extends Controller
         return TaskResource::make($task);
     }
 
-    public function destroy(int $task): Response
+    /**
+     * Удаление задачи
+     *
+     * Вложения не удаляет, так как модель имеет трейт `SoftDeletes`
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(int $id): Response
     {
-        $this->taskService->delete($task);
+        $this->taskService->delete($id);
 
         return response()->noContent();
     }

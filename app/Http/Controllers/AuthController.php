@@ -18,6 +18,12 @@ class AuthController extends Controller
     ) {
     }
 
+    /**
+     * Регистрация
+     *
+     * Выполнена простая регистрация, сразу выдает токен авторизации `access_token`, используйте в заголовке `Authorization: Bearer <token>`
+     * @unauthenticated
+     */
     public function register(RegisterRequest $request): UserResource
     {
         $validated = $request->validated();
@@ -36,6 +42,12 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Авторизация
+     *
+     * Выдает новый токен авторизации для пользователя `access_token`, используйте в заголовке `Authorization: Bearer <token>`
+     * @unauthenticated
+     */
     public function login(LoginRequest $request): UserResource
     {
         $validated = $request->validated();
@@ -54,6 +66,9 @@ class AuthController extends Controller
     }
 
     /**
+     * Выход
+     *
+     * Удаляет токен Laravel Sanctum
      * @throws \Illuminate\Auth\AuthenticationException
      */
     public function logout(Request $request): Response
@@ -63,6 +78,12 @@ class AuthController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * Обо мне
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \App\Http\Resources\UserResource
+     */
     public function me(Request $request): UserResource
     {
         return UserResource::make($request->user());
