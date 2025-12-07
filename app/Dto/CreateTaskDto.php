@@ -23,7 +23,9 @@ readonly class CreateTaskDto
         ?Collection $attachments = null,
     ) {
         if ($attachments instanceof Collection) {
-            $this->attachments = $attachments->filter(fn ($attachment) => $attachment instanceof Attachment);
+            $attachments = $attachments->filter(fn ($attachment) => $attachment instanceof Attachment);
         }
+
+        $this->attachments = $attachments;
     }
 }
