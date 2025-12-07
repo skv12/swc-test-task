@@ -57,7 +57,8 @@ class TaskService
             return $task;
         });
 
-        $task->loadMedia('attachments');
+        $task->load('employee');
+        $task->getMediaCollection('attachments');
 
         return $task;
     }
@@ -106,7 +107,10 @@ class TaskService
 
     public function findById(int $id): Task
     {
-        return Task::query()->findOrFail($id);
+        $task = Task::query()->with('employee')->findOrFail($id);
+        $task->getMediaCollection('attachments');
+
+        return $task;
     }
 
     public function delete(int $id): void
