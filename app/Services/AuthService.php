@@ -8,13 +8,10 @@ use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Laravel\Sanctum\Sanctum;
-use Laravel\Sanctum\TransientToken;
 
 class AuthService
 {
@@ -61,10 +58,8 @@ class AuthService
     /**
      * @throws \Illuminate\Auth\AuthenticationException
      */
-    public function logout(): void
+    public function logout(User $user): void
     {
-        $user = auth()->user();
-
         $currentToken = $user->currentAccessToken();
 
         if (!$currentToken instanceof Model) {

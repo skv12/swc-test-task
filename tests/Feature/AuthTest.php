@@ -127,5 +127,27 @@ class AuthTest extends TestCase
 
         $response = $this->actingAs($user)->postJson('api/logout');
         $response->assertStatus(401);
+        $response->assertJson([
+            'message' => 'Invalid token.',
+        ]);
+    }
+
+    public function test_me(): void
+    {
+        Sanctum::actingAs(
+            User::factory()->create(),
+            ['*']
+        );
+
+        $response = $this->getJson('api/me');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                'id',
+                'name',
+                'email'
+            ]
+        ]);
     }
 }

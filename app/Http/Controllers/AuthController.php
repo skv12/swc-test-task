@@ -56,10 +56,15 @@ class AuthController extends Controller
     /**
      * @throws \Illuminate\Auth\AuthenticationException
      */
-    public function logout(): Response
+    public function logout(Request $request): Response
     {
-        $this->authService->logout();
+        $this->authService->logout($request->user());
 
         return response()->noContent();
+    }
+
+    public function me(Request $request): UserResource
+    {
+        return UserResource::make($request->user());
     }
 }
