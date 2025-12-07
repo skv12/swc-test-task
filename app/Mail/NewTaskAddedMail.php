@@ -10,6 +10,7 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class NewTaskAddedMail extends Mailable implements ShouldQueue
 {
@@ -53,6 +54,8 @@ class NewTaskAddedMail extends Mailable implements ShouldQueue
      */
     public function attachments(): array
     {
-        return $this->task->getMedia('attachments')->toArray();
+        return $this->task->getMedia('attachments')->map(function (Media $media) {
+            return $media->toMailAttachment();
+        })->toArray();
     }
 }
