@@ -11,6 +11,7 @@ use App\ValueObjects\Attachment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class TaskService
@@ -127,7 +128,7 @@ class TaskService
         if ($attachment->file !== null) {
             return $task->addMedia($attachment->file)->setOrder($attachment->order)->toMediaCollection('attachments');
         }
-        if ($attachment->url !== null) {
+        if (Str::isUrl($attachment->url)) {
             return $task->addMediaFromUrl($attachment->url)->setOrder($attachment->order)->toMediaCollection(
                 'attachments'
             );
