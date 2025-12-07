@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\TaskStatus;
+use App\Mail\NewTaskAddedMail;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
@@ -10,7 +11,9 @@ use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -170,6 +173,8 @@ class TaskTest extends TestCase
 
     public function test_store(): void
     {
+        Mail::fake();
+
         $response = $this->postJson('/api/tasks', [
             'title' => 'Test Title',
             'description' => 'Test Description',
@@ -192,11 +197,16 @@ class TaskTest extends TestCase
         $this->assertDatabaseHas('tasks', [
             'title' => 'Test Title',
         ]);
+
+        Mail::assertQueued(NewTaskAddedMail::class, function (NewTaskAddedMail $mail) use ($response) {
+            return $mail->hasTo($response->json('data.employee.email'));
+        });
     }
 
     public function test_store_with_media(): void
     {
         Storage::fake();
+        Mail::fake();
 
         $response = $this->post('/api/tasks', [
             'title' => 'Test Title',
@@ -231,6 +241,10 @@ class TaskTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('media', 2);
+
+        Mail::assertQueued(NewTaskAddedMail::class, function (NewTaskAddedMail $mail) use ($response) {
+            return $mail->hasTo($response->json('data.employee.email'));
+        });
     }
 
     public function test_show(): void

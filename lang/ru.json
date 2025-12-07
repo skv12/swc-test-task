@@ -1,0 +1,6 @@
+{
+  "New Task": "Новая задача",
+  "You have been given a task #:id": "Вам поставлена задача #:id",
+  "Description: :description": "Описание: :description",
+  "Estimate Until: :until": "Срок до: :until"
+}

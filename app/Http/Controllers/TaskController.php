@@ -67,7 +67,7 @@ class TaskController extends Controller
                 description: $validated['description'],
                 employeeId: $validated['employee_id'],
                 status: isset($validated['status']) ? TaskStatus::tryFrom($validated['status']) : TaskStatus::PLANNED,
-                estimateUntil: $validated['estimate_until'] ?? null,
+                estimateUntil: isset($validated['estimate_until']) ? Carbon::parse($validated['estimate_until']): null,
                 attachments: $attachments->isNotEmpty() ? $attachments : null,
             )
         );
