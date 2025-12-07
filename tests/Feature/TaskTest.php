@@ -242,8 +242,11 @@ class TaskTest extends TestCase
 
         $this->assertDatabaseCount('media', 2);
 
-        Mail::assertQueued(NewTaskAddedMail::class, function (NewTaskAddedMail $mail) use ($response) {
-            return $mail->hasTo($response->json('data.employee.email'));
+        $media = Task::query()->find($response->json('data.id'))->getFirstMedia('attachments');
+
+        Mail::assertQueued(NewTaskAddedMail::class, function (NewTaskAddedMail $mail) use ($response, $media) {
+            return $mail->hasTo($response->json('data.employee.email'))
+                && $mail->hasAttachment($media->toMailAttachment());
         });
     }
 

@@ -38,6 +38,9 @@ make test
 ```shell
 ./vendor/bin/sail test
 ```
+![test-result.png](test-result.png)
 
 
-
+Для проверки почты используйте Mailpit, откройте по ссылке http://localhost:8025/. 
+При автотестах почта туда не отправляется, `MailManager` в тестах мокается.
+Проверяйте через Postman или через http://localhost/docs/api
