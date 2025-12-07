@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -49,6 +48,10 @@ class AuthTest extends TestCase
             'name' => $name,
             'email' => $email,
         ]);
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'name' => $response->baseRequest->header('User-Agent'),
+        ]);
     }
 
     public function test_login(): void
@@ -77,6 +80,10 @@ class AuthTest extends TestCase
                 'name' => $user->name,
                 'email' => $user->email,
             ]
+        ]);
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'name' => $response->baseRequest->header('User-Agent'),
         ]);
     }
 

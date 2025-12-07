@@ -29,9 +29,9 @@ class AuthService
         return $user;
     }
 
-    public function createToken(User $user): string
+    public function createToken(string $name, User $user): string
     {
-        return $user->createToken('token')->plainTextToken;
+        return $user->createToken($name)->plainTextToken;
     }
 
     /**

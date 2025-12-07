@@ -26,12 +26,12 @@ class AuthController extends Controller
             new RegisterDto(
                 name: $validated['name'],
                 email: $validated['email'],
-                password: $validated['password']
+                password: $validated['password'],
             )
         );
 
         return UserResource::make($user)->additional([
-            'access_token' => $this->authService->createToken($user),
+            'access_token' => $this->authService->createToken($request->userAgent(), $user),
             'token_type' => 'Bearer',
         ]);
     }
@@ -48,7 +48,7 @@ class AuthController extends Controller
         );
 
         return UserResource::make($user)->additional([
-            'access_token' => $this->authService->createToken($user),
+            'access_token' => $this->authService->createToken($request->userAgent(), $user),
             'token_type' => 'Bearer',
         ]);
     }
