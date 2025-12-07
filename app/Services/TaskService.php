@@ -50,6 +50,7 @@ class TaskService
                 'description' => $dto->description,
                 'status' => $dto->status ?? TaskStatus::PLANNED,
                 'employee_id' => $dto->employeeId,
+                'estimate_until' => $dto->estimateUntil,
             ]);
 
             $dto->attachments?->each(fn(Attachment $attachment) => $this->addAttachment($task, $attachment));
