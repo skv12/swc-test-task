@@ -27,7 +27,10 @@ class TaskResource extends JsonResource
             'status' => $this->status,
             'employee' => UserResource::make($this->whenLoaded('employee')),
             'estimate_until' => $this->estimate_until,
-            'attachments' => $this->when(isset($this->mediaCollections['attachments']), $this->getMedia('attachments')),
+            'attachments' => $this->when(
+                isset($this->mediaCollections['attachments']),
+                $this->getMedia('attachments')->pluck('original_url', 'uuid')
+            ),
         ];
     }
 }
