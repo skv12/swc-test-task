@@ -24,6 +24,12 @@
     ./vendor/bin/sail up -d
     ```
 
+### Запуск очередей
+Для корректной работы отправки почты, выполните команду 
+```shell
+./vendor/bin/sail artisan queue:work
+```
+
 ### OpenApi
 Для получения документации, откройте страницу `http://localhost/docs/api`
 
